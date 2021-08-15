@@ -36,9 +36,9 @@ fn main() {
                 "The name of the {}-th month of a year is: {}",
                 month, months[index]
             );
-        },
+        }
         _ => {
             println!("The {}-th month of a year does not exist.", month);
-        },
+        }
     };
 }

@@ -15,4 +15,10 @@ fn main() {
     let spaces = "    ";
     let spaces = spaces.len();
     println!("The length of the spaces is: {}", spaces);
+
+    let tup = (3, 0.14, 'π');
+    let (i, f, c) = tup;
+    println!("{} {} {}", i, f, c);
+
+    println!("{}", tup.0);
 }

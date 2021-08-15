@@ -17,6 +17,6 @@ fn main() {
     assert_eq!(z, 21);
 }
 
-fn add(x: i32, y: i32)->i32{
-    x+y
+fn add(x: i32, y: i32) -> i32 {
+    x + y
 }

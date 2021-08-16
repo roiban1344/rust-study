@@ -6,19 +6,19 @@
 using namespace std;
 
 int transform(int x) {
-    vector<int> a;
+    vector<int> d;
     while(x > 0) {
         int q = x / 10;
-        a.push_back(x - q * 10);
+        d.push_back(x - q * 10);
         x = q;
     }
-    sort(a.begin(), a.end());
+    sort(d.begin(), d.end());
     int y = 0;
-    for(auto it = a.rbegin(); it < a.rend(); ++it) {
+    for(auto it = d.rbegin(); it < d.rend(); ++it) {
         y = y * 10 + *it;
     }
     int z = 0;
-    for(auto it = a.begin(); it < a.end(); ++it) {
+    for(auto it = d.begin(); it < d.end(); ++it) {
         z = z * 10 + *it;
     }
     return y - z;
@@ -41,6 +41,9 @@ int main() {
     }
     for(auto x : fixed_from) {
         printf("%d %d\n", x.first, x.second.size());
+    }
+    for (int x: fixed_from.at(0)){
+        printf("%d, ", x);
     }
     return 0;
 }

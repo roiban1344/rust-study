@@ -1,5 +1,7 @@
 use std::fs::File;
+use std::io;
 use std::io::ErrorKind;
+use std::io::Read;
 
 fn main() {
     let file_name = "hello.txt";
@@ -12,4 +14,22 @@ fn main() {
             panic!("Problem opening the file: {:?}", error)
         }
     });
+
+    let throw = "投";
+    let catch = "掴";
+    //let try = "試";
+}
+
+fn read_user_name_from_file(file_name: &str) -> Result<String, io::Error> {
+    let mut f = match File::open(file_name) {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+
+    let mut s = String::new();
+
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
+    }
 }

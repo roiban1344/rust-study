@@ -5,7 +5,7 @@ fn main() {
     println!("The largest numer is {}", largest(&list).unwrap());
 }
 
-fn largest<T: PartialOrd>(list: &[T]) -> Option<T> {
+fn largest<T: PartialOrd, Copy>(list: &[T]) -> Option<T> {
     if list.len() == 0 {
         return None;
     }

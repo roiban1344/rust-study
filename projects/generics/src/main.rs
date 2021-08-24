@@ -2,10 +2,10 @@ use std::cmp::PartialOrd;
 
 fn main() {
     let list = [3, 2, 4, 5, 1];
-    println!("The largest numer is {}", largest(&list).unwrap());
+    println!("The largest number is {}", largest(&list).unwrap());
 }
 
-fn largest<T: PartialOrd, Copy>(list: &[T]) -> Option<T> {
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> Option<T> {
     if list.len() == 0 {
         return None;
     }

@@ -50,3 +50,7 @@ impl Summary for Email {
         self.author.clone()
     }
 }
+
+pub fn notify(item: &impl Summary) {
+    println!("Braeking news! {}", item.summarize());
+}

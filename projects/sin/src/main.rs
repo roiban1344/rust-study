@@ -2,53 +2,19 @@ use num::integer;
 use std::ops::{Add, Mul, Sub};
 
 fn main() {
-    let sin1 = Frac::new(Interval::new(7761199951101802512, 7761199951101802513));
-    let cos1 = Frac::new(Interval::new(4983409179392355912, 4983409179392355913));
-    let sin2 = sin1 * cos1 + cos1 * sin1;
-    let cos2 = cos1 * cos1 - sin1 * sin1;
-    println!("{:?}", sin2);
-    println!("{:?}", cos2);
-    println!("1: {:x}", sin1.to_u32());
-    println!("2: {:x}", sin2.to_u32());
+    let mut sines = vec![Option::<Frac>::None;65];
+    let mut cosines = vec![Option::<Frac>::None;65];
+    sines[1] = Some(Frac::new(Interval::new(7761199951101802512, 7761199951101802513)));
+    cosines[1] = Some(Frac::new(Interval::new(4983409179392355912, 4983409179392355913)));
 
-    for i in 2..=64 {
-        let sin = sin(&i);
-        println!("{}: {:x}", i, sin.to_u32());
-    }
-}
-
-fn sin(&i: &i32) -> Frac {
-    if i == 1 {
-        Frac::new(Interval::new(7761199951101802512, 7761199951101802513))
-    } else {
-        match i % 2 == 0 {
-            true => {
-                let j = i / 2;
-                let tmp = sin(&j) * cos(&j);
-                tmp + tmp
-            },
-            false => {
-                let j = i / 2;
-                sin(&j) * cos(&(j + 1)) + cos(&j) * sin(&(j + 1))
-            },
-        }
-    }
-}
-
-fn cos(&i: &i32) -> Frac {
-    if i == 1 {
-        Frac::new(Interval::new(4983409179392355912, 4983409179392355913))
-    } else {
-        match i % 2 == 0 {
-            true => {
-                let j = i / 2;
-                cos(&j) * cos(&j) - sin(&j) * sin(&j)
-            },
-            false => {
-                let j = i / 2;
-                cos(&j) * cos(&(j + 1)) - sin(&j) * sin(&(j + 1))
-            },
-        }
+    for i in 2..=65 {
+        let s1 = sines[i/2].unwrap();
+        let c1 = cosines[i/2].unwrap();
+        let s2 = sines[(i+1)/2].unwrap();
+        let c2 = cosines[(i+1)/2].unwrap();
+        sines[i] = Some(s1*c2+c1*s2);
+        cosines[i] = Some(c1*c2-s1*s2);
+        println!("{}:{:x}", i, sines[i].unwrap().to_u32());
     }
 }
 

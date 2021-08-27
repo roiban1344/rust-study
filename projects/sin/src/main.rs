@@ -16,6 +16,18 @@ fn main() {
     println!("{:x}", sin2.to_u32());
     println!("{:x}", sin3.to_u32());
     println!("{:x}", sin4.to_u32());
+    let sin8 = sin4 * cos4 + cos4 * sin4;
+    let cos8 = cos4 * cos4 - sin4 * sin4;
+    println!("{:x}", sin8.to_u32());
+    let sin16 = sin8 * cos8 + cos8 * sin8;
+    let cos16 = cos8 * cos8 - sin8 * sin8;
+    println!("{:x}", sin16.to_u32());
+    let sin32 = sin16 * cos16 + cos16 * sin16;
+    let cos32 = cos16 * cos16 - sin16 * sin16;
+    println!("{:x}", sin32.to_u32());
+    let sin64 = sin32 * cos32 + cos32 * sin32;
+    let cos64 = cos32 * cos32 - sin32 * sin32;
+    println!("{:x}", sin64.to_u32());
 }
 
 #[derive(Copy, Clone, Debug)]

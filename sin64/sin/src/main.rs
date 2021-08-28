@@ -1,7 +1,7 @@
 use num::integer;
 use std::ops::{Add, Mul, Sub};
 
-const RANGE_MAX: usize = 64;
+const RANGE_MAX: usize = 8192;
 
 macro_rules! frac_interval {
     [$min:expr, $max:expr] => [
@@ -17,7 +17,7 @@ fn main() {
 
     let print_data = |i: i32, frac: &Frac| -> () {
         println!(
-            "{0},{1:x},{1},{2},{3},{4}",
+            "{0},{1:#x},{1},{2},{3},{4}",
             i,
             frac.to_u32(),
             frac.num.min,
@@ -71,25 +71,40 @@ impl Interval {
             panic!("Contains 0 {:?}", self);
         }
     }
+}
 
-    fn sum(&self, other: &Interval) -> Interval {
+impl Add for Interval {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
         Interval {
             min: self.min + other.min,
             max: self.max + other.max,
         }
     }
-    fn sub(&self, other: &Interval) -> Interval {
+}
+
+impl Sub for Interval {
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
         Interval {
             min: self.min - other.max,
             max: self.max - other.min,
         }
     }
-    fn prod(&self, other: &Interval) -> Interval {
+}
+
+impl Mul for Interval {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        let a = self.min;
+        let b = self.max;
+        let c = other.min;
+        let d = other.max;
         let (min, max) = match (self.sign(), other.sign()) {
-            (1, 1) => (self.min * other.min, self.max * other.max),
-            (1, -1) => (self.max * other.min, self.min * other.max),
-            (-1, 1) => (self.min * other.max, self.max * other.min),
-            (-1, -1) => (self.max * other.max, self.min * other.min),
+            (1, 1) => (a * c, b * d),
+            (1, -1) => (b * c, a * d),
+            (-1, 1) => (a * d, b * c),
+            (-1, -1) => (b * d, a * c),
             _ => panic!("unreachable"),
         };
         Interval::new(min, max)
@@ -102,8 +117,8 @@ struct Frac {
 }
 
 impl Frac {
-    fn new(num: Interval) -> Frac {
-        Frac { num }
+    fn new(num: Interval) -> Self {
+        Self { num }
     }
     fn to_u32(&self) -> u32 {
         let min = integer::div_floor(self.num.min.abs(), 1 << 31);
@@ -119,22 +134,22 @@ impl Frac {
 
 impl Add for Frac {
     type Output = Self;
-    fn add(self, other: Self) -> Frac {
-        Frac::new(self.num.sum(&other.num))
+    fn add(self, other: Self) -> Self {
+        Frac::new(self.num + other.num)
     }
 }
 
 impl Sub for Frac {
     type Output = Self;
-    fn sub(self, other: Self) -> Frac {
-        Frac::new(self.num.sub(&other.num))
+    fn sub(self, other: Self) -> Self {
+        Frac::new(self.num - other.num)
     }
 }
 
 impl Mul for Frac {
     type Output = Self;
-    fn mul(self, other: Self) -> Frac {
-        let num_prod = self.num.prod(&other.num);
+    fn mul(self, other: Self) -> Self {
+        let num_prod = self.num * other.num;
         let floor = integer::div_floor(num_prod.min, 1 << 63);
         let ceil = integer::div_ceil(num_prod.max, 1 << 63);
         frac_interval![floor, ceil]

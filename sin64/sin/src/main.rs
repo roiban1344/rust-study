@@ -45,11 +45,6 @@ struct Interval {
     max: i128,
 }
 
-// enum Sign{
-//     Pos,
-//     Neg,
-// }
-
 impl Interval {
     fn new(min: i128, max: i128) -> Interval {
         if min < 0 && 0 < max {
@@ -62,10 +57,8 @@ impl Interval {
 
     fn sign(&self) -> i32 {
         if self.min > 0 && self.max > 0 {
-            //Sign::Pos
             1
         } else if self.min < 0 && self.max < 0 {
-            //Sign::Neg
             -1
         } else {
             panic!("Contains 0 {:?}", self);
@@ -75,32 +68,26 @@ impl Interval {
 
 impl Add for Interval {
     type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Interval {
-            min: self.min + other.min,
-            max: self.max + other.max,
-        }
+    fn add(self, rhs: Self) -> Self {
+        Interval::new(self.min + rhs.min, self.max + rhs.max)
     }
 }
 
 impl Sub for Interval {
     type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        Interval {
-            min: self.min - other.max,
-            max: self.max - other.min,
-        }
+    fn sub(self, rhs: Self) -> Self {
+        Interval::new(self.min - rhs.max, self.max - rhs.min)
     }
 }
 
 impl Mul for Interval {
     type Output = Self;
-    fn mul(self, other: Self) -> Self {
+    fn mul(self, rhs: Self) -> Self {
         let a = self.min;
         let b = self.max;
-        let c = other.min;
-        let d = other.max;
-        let (min, max) = match (self.sign(), other.sign()) {
+        let c = rhs.min;
+        let d = rhs.max;
+        let (min, max) = match (self.sign(), rhs.sign()) {
             (1, 1) => (a * c, b * d),
             (1, -1) => (b * c, a * d),
             (-1, 1) => (a * d, b * c),
@@ -118,6 +105,9 @@ struct Frac {
 
 impl Frac {
     fn new(num: Interval) -> Self {
+        if num.min < -(1<<63) || 1<<63 < num.max {
+            panic!("out of range")
+        }
         Self { num }
     }
     fn to_u32(&self) -> u32 {
@@ -134,22 +124,22 @@ impl Frac {
 
 impl Add for Frac {
     type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Frac::new(self.num + other.num)
+    fn add(self, rhs: Self) -> Self {
+        Frac::new(self.num + rhs.num)
     }
 }
 
 impl Sub for Frac {
     type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        Frac::new(self.num - other.num)
+    fn sub(self, rhs: Self) -> Self {
+        Frac::new(self.num - rhs.num)
     }
 }
 
 impl Mul for Frac {
     type Output = Self;
-    fn mul(self, other: Self) -> Self {
-        let num_prod = self.num * other.num;
+    fn mul(self, rhs: Self) -> Self {
+        let num_prod = self.num * rhs.num;
         let floor = integer::div_floor(num_prod.min, 1 << 63);
         let ceil = integer::div_ceil(num_prod.max, 1 << 63);
         frac_interval![floor, ceil]

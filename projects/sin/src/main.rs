@@ -3,17 +3,17 @@ use std::ops::{Add, Mul, Sub};
 
 const RANGE_MAX: usize = 64;
 
+macro_rules! frac_interval {
+    [$min:expr, $max:expr] => [
+        Frac::new(Interval::new($min, $max))
+    ]
+}
+
 fn main() {
-    let mut sin = vec![Option::<Frac>::None; RANGE_MAX+1];
-    let mut cos = vec![Option::<Frac>::None; RANGE_MAX+1];
-    sin[1] = Some(Frac::new(Interval::new(
-        7761199951101802512,
-        7761199951101802513,
-    )));
-    cos[1] = Some(Frac::new(Interval::new(
-        4983409179392355912,
-        4983409179392355913,
-    )));
+    let mut sin = vec![Option::<Frac>::None; RANGE_MAX + 1];
+    let mut cos = vec![Option::<Frac>::None; RANGE_MAX + 1];
+    sin[1] = Some(frac_interval![7761199951101802512, 7761199951101802513]);
+    cos[1] = Some(frac_interval![4983409179392355912, 4983409179392355913]);
 
     let print_data = |i: i32, frac: &Frac| -> () {
         println!(
@@ -22,7 +22,7 @@ fn main() {
             frac.to_u32(),
             frac.num.min,
             frac.num.max,
-            frac.num.max-frac.num.min
+            frac.num.max - frac.num.min
         )
     };
 
@@ -85,8 +85,7 @@ impl Interval {
         }
     }
     fn prod(&self, other: &Interval) -> Interval {
-        let (min, max) =
-        match (self.sign(), other.sign()) {
+        let (min, max) = match (self.sign(), other.sign()) {
             (1, 1) => (self.min * other.min, self.max * other.max),
             (1, -1) => (self.max * other.min, self.min * other.max),
             (-1, 1) => (self.min * other.max, self.max * other.min),
@@ -138,7 +137,6 @@ impl Mul for Frac {
         let num_prod = self.num.prod(&other.num);
         let floor = integer::div_floor(num_prod.min, 1 << 63);
         let ceil = integer::div_ceil(num_prod.max, 1 << 63);
-        let interval = Interval::new(floor, ceil);
-        Frac::new(interval)
+        frac_interval![floor, ceil]
     }
 }

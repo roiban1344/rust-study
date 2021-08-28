@@ -1,20 +1,41 @@
 use num::integer;
 use std::ops::{Add, Mul, Sub};
 
-fn main() {
-    let mut sines = vec![Option::<Frac>::None;65];
-    let mut cosines = vec![Option::<Frac>::None;65];
-    sines[1] = Some(Frac::new(Interval::new(7761199951101802512, 7761199951101802513)));
-    cosines[1] = Some(Frac::new(Interval::new(4983409179392355912, 4983409179392355913)));
+const RANGE_MAX: usize = 64;
 
-    for i in 2..=65 {
-        let s1 = sines[i/2].unwrap();
-        let c1 = cosines[i/2].unwrap();
-        let s2 = sines[(i+1)/2].unwrap();
-        let c2 = cosines[(i+1)/2].unwrap();
-        sines[i] = Some(s1*c2+c1*s2);
-        cosines[i] = Some(c1*c2-s1*s2);
-        println!("{}:{:x}", i, sines[i].unwrap().to_u32());
+fn main() {
+    let mut sin = vec![Option::<Frac>::None; RANGE_MAX+1];
+    let mut cos = vec![Option::<Frac>::None; RANGE_MAX+1];
+    sin[1] = Some(Frac::new(Interval::new(
+        7761199951101802512,
+        7761199951101802513,
+    )));
+    cos[1] = Some(Frac::new(Interval::new(
+        4983409179392355912,
+        4983409179392355913,
+    )));
+
+    let print_data = |i: i32, frac: &Frac| -> () {
+        println!(
+            "{0},{1:x},{1},{2},{3},{4}",
+            i,
+            frac.to_u32(),
+            frac.num.min,
+            frac.num.max,
+            frac.num.max-frac.num.min
+        )
+    };
+
+    print_data(1, &sin[1].unwrap());
+
+    for i in 2..=RANGE_MAX {
+        let s1 = sin[i / 2].unwrap();
+        let c1 = cos[i / 2].unwrap();
+        let s2 = sin[(i + 1) / 2].unwrap();
+        let c2 = cos[(i + 1) / 2].unwrap();
+        sin[i] = Some(s1 * c2 + c1 * s2);
+        cos[i] = Some(c1 * c2 - s1 * s2);
+        print_data(i as i32, &sin[i].unwrap());
     }
 }
 
@@ -23,6 +44,11 @@ struct Interval {
     min: i128,
     max: i128,
 }
+
+// enum Sign{
+//     Pos,
+//     Neg,
+// }
 
 impl Interval {
     fn new(min: i128, max: i128) -> Interval {
@@ -34,8 +60,16 @@ impl Interval {
         Interval { min, max }
     }
 
-    fn is_positive(&self) -> bool {
-        self.min > 0
+    fn sign(&self) -> i32 {
+        if self.min > 0 && self.max > 0 {
+            //Sign::Pos
+            1
+        } else if self.min < 0 && self.max < 0 {
+            //Sign::Neg
+            -1
+        } else {
+            panic!("Contains 0 {:?}", self);
+        }
     }
 
     fn sum(&self, other: &Interval) -> Interval {
@@ -51,12 +85,15 @@ impl Interval {
         }
     }
     fn prod(&self, other: &Interval) -> Interval {
-        match (self.is_positive(), other.is_positive()) {
-            (true, true) => Interval::new(self.min * other.min, self.max * other.max),
-            (true, false) => Interval::new(self.max * other.min, self.min * other.max),
-            (false, true) => Interval::new(self.min * other.max, self.max * other.min),
-            (false, false) => Interval::new(self.max * other.max, self.min * other.min),
-        }
+        let (min, max) =
+        match (self.sign(), other.sign()) {
+            (1, 1) => (self.min * other.min, self.max * other.max),
+            (1, -1) => (self.max * other.min, self.min * other.max),
+            (-1, 1) => (self.min * other.max, self.max * other.min),
+            (-1, -1) => (self.max * other.max, self.min * other.min),
+            _ => panic!("unreachable"),
+        };
+        Interval::new(min, max)
     }
 }
 

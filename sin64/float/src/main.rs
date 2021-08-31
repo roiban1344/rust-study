@@ -1,3 +1,5 @@
+use num_traits::{Float, FromPrimitive};
+
 const TABLE: [(i64, i64); 64] = [
     (1, 0xd76aa478),
     (2, 0xe8c7b756),
@@ -67,20 +69,14 @@ const TABLE: [(i64, i64); 64] = [
 
 fn main() {
     for (i, t) in TABLE {
-        let t_f32 = t_f32(i);
-        let t_f64 = t_f64(i);
+        let t_f32 = t_float::<f32>(i);
+        let t_f64 = t_float::<f64>(i);
         println!("{:>2}\t{:>10}\t{:>5}\t{}", i, t, t_f32 - t, t_f64 - t);
     }
 }
 
-fn t_f32(i: i64) -> i64 {
-    let sin = (i as f32).sin();
-    let x = sin.abs() * (4294967296_i64 as f32);
-    x.floor() as i64
-}
-
-fn t_f64(i: i64) -> i64 {
-    let sin = (i as f64).sin();
-    let x = sin.abs() * (4294967296_i64 as f64);
-    x.floor() as i64
+fn t_float<T: Float + FromPrimitive>(i: i64) -> i64 {
+    let sin = T::from_i64(i).unwrap().sin();
+    let x = sin.abs() * T::from_i64(4294967296_i64).unwrap();
+    T::to_i64(&x.floor()).unwrap()
 }

@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 pub struct Cacher<T>
 where
     T: Fn(u32) -> u32,
 {
     calcuration: T,
-    value: Option<u32>,
+    values: HashMap<u32, u32>,
 }
 
 impl<T> Cacher<T>
@@ -13,15 +15,15 @@ where
     pub fn new(calcuration: T) -> Cacher<T> {
         Cacher {
             calcuration,
-            value: None,
+            values: HashMap::new(),
         }
     }
     pub fn value(&mut self, arg: u32) -> u32 {
-        match self.value {
-            Some(v) => v,
+        match self.values.get(&arg) {
+            Some(&v) => v,
             None => {
                 let v = (self.calcuration)(arg);
-                self.value = Some(v);
+                self.values.insert(arg, v);
                 v
             }
         }
@@ -36,7 +38,7 @@ mod tests {
     fn call_with_different_values() {
         let mut c = Cacher::new(|a| a);
 
-        let v1 = c.value(1);
+        let _v1 = c.value(1);
         let v2 = c.value(2);
 
         assert_eq!(v2, 2);
